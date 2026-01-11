@@ -5,6 +5,9 @@ let currentResult = null;
 
 // --- INIT ---
 function init() {
+    // Ensure body starts in small mode
+    document.body.classList.remove('expanded');
+
     main.innerHTML = "";
     
     // Create Layout
@@ -82,6 +85,9 @@ async function handleAnalyze() {
 }
 
 function transitionToResults() {
+    // Expand the window dimensions
+    document.body.classList.add('expanded');
+
     document.getElementById("input-view").classList.add("hidden");
     const resultView = document.getElementById("result-view");
     resultView.classList.remove("hidden");
