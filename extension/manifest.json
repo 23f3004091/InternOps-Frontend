@@ -5,7 +5,7 @@
   "author": "Gyan Prakash Kushwaha",
   "description": "Interns Getting Shortlisted",
   "permissions": [
-    ""
+    "activeTab"
   ],
   "content_scripts": [
     {
@@ -34,6 +34,6 @@
       "32": "assets/logo-removebg.png"
     },
     "default_popup": "popup.html",
-    "default_title": "A tooltip popup description when you hover over the Chrome Extension icon."
+    "default_title": "InternOps Smart Filter"
   }
 }
