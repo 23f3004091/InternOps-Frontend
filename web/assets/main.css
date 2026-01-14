@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    /* --- Brand Identity --- */
+    --brand-gradient: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+    --primary: #0ea5e9;
+    
+    /* --- Semantic Colors --- */
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444; 
+
+    /* --- BACKGROUNDS (Forced Dark) --- */
+    /* I moved these FROM the dark mode block TO here */
+    --bg-body: #0f172a;      /* Deep Slate */
+    --bg-surface: #1e293b;   /* Lighter Slate */
+    --bg-card: #334155;      /* Card Slate */
+    
+    /* --- TEXT (Forced Dark) --- */
+    --text-main: #f1f5f9;    /* White-ish */
+    --text-muted: #94a3b8;   /* Muted Grey */
+    
+    /* --- BORDERS & INPUTS --- */
+    --border: #334155;       
+    --border-hover: #475569;
+    
+    --input-bg: #1e293b;     
+    --input-hover: #334155;
+    
+    --option-bg: #1e293b;
+    --option-selected-bg: #334155;
+    --option-selected-text: #38bdf8; 
+
+    /* --- SHADOWS --- */
+    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    --shadow-surface: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    
+    --radius: 12px;
+}
+
+/* We removed the @media query so the dark colors above are ALWAYS applied */
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    overflow: hidden; 
+}
+
+/* Utilities */
+.brand-gradient-bg { background: var(--brand-gradient); }
+.brand-text { 
+    background: var(--brand-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}

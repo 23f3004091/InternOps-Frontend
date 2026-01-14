@@ -1,32 +1,37 @@
 <template>
-  <div class="relative rounded-2xl bg-white p-2 shadow-xl shadow-slate-200/50 ring-1 ring-slate-200 transition-shadow focus-within:shadow-2xl focus-within:shadow-sky-500/10 focus-within:ring-sky-500/50">
-    <div class="flex items-center gap-2 border-b border-slate-100 px-2 pb-2 mb-2">
-       <button class="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-50 hover:text-sky-500" title="Upload Resume">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-             <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-          </svg>
-       </button>
-    </div>
-
-    <div class="flex items-end gap-2 pr-2">
-      <textarea
-        v-model="input"
-        @keydown.enter.prevent="send"
-        placeholder="Ask InternOps to analyze gaps in your resume..."
+  <div class="w-full max-w-3xl mx-auto p-4">
+    <div class="relative bg-bg-surface border border-border-col rounded-2xl shadow-surface focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all duration-300">
+      
+      <textarea 
+        v-model="message"
+        placeholder="Paste job description or ask about the resume..."
+        class="w-full bg-transparent text-text-main placeholder-text-muted px-4 py-4 pr-12 rounded-2xl resize-none focus:outline-none max-h-48 overflow-y-auto"
         rows="1"
-        class="max-h-32 min-h-[44px] w-full resize-none border-0 bg-transparent px-3 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:ring-0"
-        style="field-sizing: content;" 
+        @input="autoResize"
       ></textarea>
 
-      <button 
-        @click="send"
-        :disabled="!input.trim()"
-        class="mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-sky-500 text-white shadow-lg shadow-sky-500/20 transition-all hover:scale-105 hover:shadow-sky-500/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7" />
-        </svg>
-      </button>
+      <div class="flex items-center justify-between px-3 pb-3 pt-1">
+        
+        <label class="cursor-pointer group flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-bg-card transition-colors">
+            <input type="file" class="hidden" accept=".pdf" />
+            <div class="w-6 h-6 rounded-full bg-bg-card border border-border-col flex items-center justify-center text-text-muted group-hover:text-primary group-hover:border-primary transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+            </div>
+            <span class="text-xs font-semibold text-text-muted group-hover:text-text-main">Upload Resume</span>
+        </label>
+
+        <button 
+          @click="sendMessage"
+          :disabled="!message"
+          class="p-2 rounded-lg transition-all duration-200 shadow-soft"
+          :class="message ? 'brand-gradient-bg text-white hover:scale-105' : 'bg-bg-card text-text-muted cursor-not-allowed'"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </div>
+    </div>
+    <div class="text-center mt-2">
+      <p class="text-[11px] text-text-muted">InternOps can make mistakes. Review generated results.</p>
     </div>
   </div>
 </template>
@@ -34,12 +39,17 @@
 <script setup>
 import { ref } from 'vue';
 
-const emit = defineEmits(['send-message']);
-const input = ref('');
+const message = ref('');
+const emit = defineEmits(['send']);
 
-const send = () => {
-  if (!input.value.trim()) return;
-  emit('send-message', input.value);
-  input.value = '';
+const autoResize = (e) => {
+  e.target.style.height = 'auto';
+  e.target.style.height = e.target.scrollHeight + 'px';
+};
+
+const sendMessage = () => {
+  if (!message.value.trim()) return;
+  emit('send', message.value);
+  message.value = '';
 };
 </script>
