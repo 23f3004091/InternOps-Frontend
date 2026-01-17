@@ -10,7 +10,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <nav>
+        <router-link to="/"></router-link> |
+        <router-link to="/analysis">Analysis</router-link>
+      </nav>
+      <router-view></router-view>
+    </div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
