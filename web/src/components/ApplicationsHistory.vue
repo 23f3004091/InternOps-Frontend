@@ -1,28 +1,126 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import {useRouter} from 'vue-router'
+import { useRouter } from 'vue-router'
 import { fetchHistory } from '../api'
 
 const searchQuery = ref('')
 const activeTab = ref('ALL') 
 const data = ref([])
 const router = useRouter()
+
 const tabs = [
-  { label: 'All Applications', value: 'ALL', count: 0 }, // Added count placeholder
+  { label: 'All Applications', value: 'ALL' },
   { label: 'Hired', value: 'HIRE' },
   { label: 'Rejected', value: 'NO_HIRE' },
   { label: 'Pending', value: 'MAYBE' }
 ]
 
 onMounted(async () => {
+    // I assume this API now returns the joined data from analysis + job_metadata + ats + recruiter
     data.value = await fetchHistory()
-    console.log("Data Loaded: ", data.value)
+    // data.value = [
+    //     // 1. The "Perfect Match" (Hired)
+    //     {
+    //         id: 101,
+    //         created_at: '2023-10-24T14:30:00Z',
+    //         mode: 'Cold Email',
+    //         status: 'HIRE',
+            
+    //         // Job Metadata
+    //         job_title: 'Senior Frontend Engineer',
+    //         company_name: 'TechFlow Systems',
+    //         location: 'San Francisco, CA (Remote)',
+    //         salary_range: '$140k - $160k',
+    //         work_mode: 'Remote',
+    //         required_skills: ['Vue.js', 'TypeScript', 'Tailwind', 'System Design'],
+            
+    //         // Scores & Analysis
+    //         match_score: 95,
+    //         missing_keywords: [], // Empty to test "No keyword issues"
+    //         tech_depth_score: 92,
+    //         career_progression_score: 90,
+    //         stack_alignment: 'Perfect Match',
+    //         soft_skills: ['Leadership', 'Communication']
+    //     },
+        
+    //     // 2. The "Keyword Mismatch" (Rejected)
+    //     {
+    //         id: 102,
+    //         created_at: '2023-10-22T09:15:00Z',
+    //         mode: 'LinkedIn Easy Apply',
+    //         status: 'NO_HIRE',
+            
+    //         // Job Metadata
+    //         job_title: 'Full Stack Developer',
+    //         company_name: 'Legacy Corp',
+    //         location: 'New York, NY',
+    //         salary_range: null, // Testing null handling
+    //         work_mode: 'Hybrid',
+    //         required_skills: ['Java', 'Spring Boot', 'Angular', 'AWS'],
+            
+    //         // Scores & Analysis
+    //         match_score: 45,
+    //         missing_keywords: ['Spring Boot', 'Microservices', 'Jenkins', 'Hibernate'], // Testing the missing keywords badge
+    //         tech_depth_score: 60,
+    //         career_progression_score: 50,
+    //         stack_alignment: 'Backend heavy',
+    //         soft_skills: []
+    //     },
+
+    //     // 3. The "Potential" (Pending/Maybe)
+    //     {
+    //         id: 103,
+    //         created_at: '2023-10-20T11:45:00Z',
+    //         mode: 'Referral',
+    //         status: 'MAYBE',
+            
+    //         // Job Metadata
+    //         job_title: 'UI/UX Engineer',
+    //         company_name: 'Creative Studio',
+    //         location: 'London, UK',
+    //         salary_range: '£60k - £75k',
+    //         work_mode: 'On-site',
+    //         required_skills: ['React', 'Figma', 'Motion Design'],
+            
+    //         // Scores & Analysis
+    //         match_score: 78,
+    //         missing_keywords: ['Figma'],
+    //         tech_depth_score: 85,
+    //         career_progression_score: 80,
+    //         stack_alignment: 'Strong Frontend',
+    //         soft_skills: ['Creativity']
+    //     },
+
+    //     // 4. The "Incomplete Data" (Testing Fallbacks)
+    //     {
+    //         id: 104,
+    //         created_at: '2023-10-18T16:20:00Z',
+    //         mode: 'Recruiter Reachout',
+    //         status: 'PENDING',
+            
+    //         // Job Metadata (Missing title/company to test UI robustness)
+    //         job_title: null, 
+    //         company_name: 'Stealth Startup', 
+    //         location: null,
+    //         salary_range: null,
+    //         work_mode: null,
+    //         required_skills: [],
+            
+    //         // Scores & Analysis
+    //         match_score: 0,
+    //         missing_keywords: ['Everything'],
+    //         tech_depth_score: 0,
+    //         career_progression_score: 0,
+    //         stack_alignment: null,
+    //         soft_skills: []
+    //     }
+    // ]
 })
 // --- UTILITIES ---
 
 const getStatusStyles = (status) => {
-  if (!status) return 'bg-slate-700/50 text-slate-400 border-slate-600';
-  switch (status.toLowerCase()) {
+    if (!status) return 'bg-slate-700/50 text-slate-400 border-slate-600';
+    switch (status.toLowerCase()) {
     case 'hire': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]';
     case 'no_hire':
     case 'reject': return 'bg-rose-500/10 text-rose-400 border-rose-500/20';
@@ -34,31 +132,27 @@ const getStatusStyles = (status) => {
 
 const getScoreColor = (score) => {
     if (score >= 90) return 'text-emerald-400 font-bold';
-    if (score >= 75) return 'text-amber-400 font-semibold'; // Adjusted threshold
+    if (score >= 75) return 'text-amber-400 font-semibold';
     return 'text-rose-400 font-medium';
 }
 
 function goToAnalysis(id){
-    console.log("clikceddd......................")
     router.push(`/analysis/${id}`)
 }
 
-// Regex to clean up the messy scraped data
-const cleanJobTitle = (snippet) => {
-    if (!snippet) return 'Unknown Role';
-    return snippet
-        .replace(/^(escription|iption|cription|Job Description)/gi, '') // Remove weird scrape artifacts
-        .replace(/^[:\-\s\r\n]+/, '') // Remove leading symbols
-        .replace(/Job Title[:\-\s]*/gi, '') // Remove "Job Title:" label
-        .trim();
-}
-
 const formatDate = (dateString) => {
+    if (!dateString) return { date: '--', time: '--' };
     const d = new Date(dateString);
     return {
         date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         time: d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
+}
+
+// Format array to comma-separated string for display
+const arrayToString = (arr) => {
+    if (Array.isArray(arr)) return arr.join(', ');
+    return '';
 }
 
 // --- COMPUTED ---
@@ -68,11 +162,20 @@ const filteredData = computed(() => {
     const matchesTab = activeTab.value === 'ALL' || item.status === activeTab.value;
     const query = searchQuery.value.toLowerCase();
     
-    // Enhanced Search: Includes Status and Cleaned Title
-    const cleanTitle = cleanJobTitle(item.jdsnippet).toLowerCase();
+    // Updated Search: Uses the new rich DB fields
+    // Checks: Job Title, Company, Location, Strategy/Mode, Status, or Required Skills
+    const jobTitle = (item.job_title || '').toLowerCase();
+    const company = (item.company_name || '').toLowerCase();
+    const location = (item.location || '').toLowerCase();
+    const strategy = (item.mode || item.strategy || '').toLowerCase();
+    const skills = arrayToString(item.required_skills).toLowerCase();
+
     const matchesSearch = 
-        cleanTitle.includes(query) || 
-        (item.strategy || '').toLowerCase().includes(query) ||
+        jobTitle.includes(query) || 
+        company.includes(query) ||
+        location.includes(query) ||
+        strategy.includes(query) ||
+        skills.includes(query) ||
         (item.status || '').toLowerCase().includes(query);
 
     return matchesTab && matchesSearch;
@@ -96,7 +199,7 @@ const filteredData = computed(() => {
                         <input 
                             v-model="searchQuery"
                             type="text" 
-                            placeholder="Search by role, strategy, or status..." 
+                            placeholder="Search role, company, skills..." 
                             class="block w-full pl-10 pr-4 py-2.5 bg-[#1e293b]/80 border border-slate-700/60 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#38bdf8]/50 focus:border-[#38bdf8] sm:text-sm transition-all shadow-lg"
                         >
                     </div>
@@ -126,10 +229,10 @@ const filteredData = computed(() => {
                     <table class="min-w-full divide-y divide-slate-700/50">
                         <thead class="bg-[#1e293b] sticky top-0 z-20 shadow-sm">
                             <tr>
-                                <th scope="col" class="py-4 pl-6 pr-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Applied Date</th>
-                                <th scope="col" class="px-3 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Role & Strategy</th>
-                                <th scope="col" class="px-3 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">ATS / Rec Score</th>
-                                <th scope="col" class="px-3 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 border-l border-slate-700/50">Tech / Fit Score</th>
+                                <th scope="col" class="py-4 pl-6 pr-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Applied</th>
+                                <th scope="col" class="px-3 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Role & Company</th>
+                                <th scope="col" class="px-3 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">ATS / Keywords</th>
+                                <th scope="col" class="px-3 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 border-l border-slate-700/50">Tech / Fit</th>
                                 <th scope="col" class="px-3 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Status</th>
                                 <th scope="col" class="relative py-4 pl-3 pr-6"><span class="sr-only">Action</span></th>
                             </tr>
@@ -150,70 +253,103 @@ const filteredData = computed(() => {
 
                             <tr v-for="item in filteredData" :key="item.id" class="group hover:bg-[#1e293b] transition-colors duration-150">
                                 
-                                <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm">
+                                <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm align-top">
                                     <div class="flex flex-col">
                                         <span class="font-bold text-slate-200 group-hover:text-white transition-colors">
-                                            {{ formatDate(item.date).date }}
+                                            {{ formatDate(item.created_at || item.date).date }}
                                         </span>
                                         <span class="text-[11px] text-slate-500 font-mono mt-0.5">
-                                            {{ formatDate(item.date).time }}
+                                            {{ formatDate(item.created_at || item.date).time }}
                                         </span>
-                                    </div>
-                                </td>
-
-                                <td class="whitespace-nowrap px-3 py-4 text-sm max-w-[240px]">
-                                    <div class="flex flex-col gap-1.5">
-                                        <div class="font-semibold text-white truncate text-base" :title="cleanJobTitle(item.jdsnippet)">
-                                            {{ cleanJobTitle(item.jdsnippet) }}
-                                        </div>
-                                        <div class="flex">
+                                        <div class="mt-2">
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-slate-800 text-slate-400 border border-slate-700/80">
-                                                {{ item.strategy }}
+                                                {{ item.mode || item.strategy || 'N/A' }}
                                             </span>
                                         </div>
                                     </div>
                                 </td>
 
-                                <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                    <div class="flex items-center justify-center gap-3">
-                                        <div class="text-center min-w-[40px]">
-                                            <div class="text-[10px] text-slate-500 uppercase font-bold">ATS</div>
-                                            <div class="text-base" :class="getScoreColor(item.atsscore)">{{ item.atsscore }}</div>
+                                <td class="px-3 py-4 text-sm max-w-[280px] align-top">
+                                    <div class="flex flex-col gap-1">
+                                        <div class="font-semibold text-white text-base truncate" :title="item.job_title">
+                                            {{ item.job_title || 'Unknown Role' }}
                                         </div>
-                                        <div class="h-8 w-px bg-slate-700/50"></div>
-                                        <div class="text-center min-w-[40px]">
-                                            <div class="text-[10px] text-slate-500 uppercase font-bold">REC</div>
-                                            <div class="text-base text-slate-300 font-bold">{{ item.recruiterscore }}</div>
+                                        
+                                        <div class="flex items-center text-slate-400 text-xs gap-1.5 truncate">
+                                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                            </svg>
+                                            <span class="font-medium text-slate-300">{{ item.company_name || 'Unknown Co.' }}</span>
+                                            <span v-if="item.location" class="text-slate-600">•</span>
+                                            <span v-if="item.location">{{ item.location }}</span>
+                                        </div>
+
+                                        <div class="flex flex-wrap gap-2 mt-1">
+                                            <span v-if="item.salary_range" class="text-[10px] text-emerald-400/80 bg-emerald-900/20 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                                                {{ item.salary_range }}
+                                            </span>
+                                            <span v-if="item.work_mode" class="text-[10px] text-indigo-400/80 bg-indigo-900/20 px-1.5 py-0.5 rounded border border-indigo-500/20">
+                                                {{ item.work_mode }}
+                                            </span>
                                         </div>
                                     </div>
                                 </td>
 
-                                <td class="whitespace-nowrap px-3 py-4 text-sm border-l border-slate-700/50 bg-slate-800/10">
-                                    <div class="flex items-center justify-center gap-3">
+                                <td class="px-3 py-4 text-sm align-top">
+                                    <div class="flex flex-col items-center gap-2">
                                         <div class="text-center min-w-[40px]">
-                                            <div class="text-[10px] text-indigo-400/60 uppercase font-bold">Tech</div>
-                                            <div class="text-base font-bold text-indigo-300">{{ item.techdepthscore }}</div>
+                                            <div class="text-[10px] text-slate-500 uppercase font-bold">ATS Match</div>
+                                            <div class="text-base" :class="getScoreColor(item.match_score || item.atsscore)">
+                                                {{ item.match_score || item.atsscore || 0 }}%
+                                            </div>
                                         </div>
-                                        <div class="h-8 w-px bg-slate-700/50"></div>
-                                        <div class="text-center min-w-[40px]">
-                                            <div class="text-[10px] text-amber-500/60 uppercase font-bold">Fit</div>
-                                            <div class="text-base font-bold text-amber-400">{{ item.careerprogressionscore }}</div>
+                                        
+                                        <div v-if="item.missing_keywords && item.missing_keywords.length > 0" class="flex flex-col items-center">
+                                            <div class="text-[10px] text-rose-400 font-medium flex items-center gap-1 bg-rose-900/10 px-1.5 py-0.5 rounded border border-rose-500/20" :title="'Missing: ' + arrayToString(item.missing_keywords)">
+                                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                </svg>
+                                                {{ item.missing_keywords.length }} Missing
+                                            </div>
+                                        </div>
+                                        <div v-else class="text-[10px] text-slate-600 italic">No keyword issues</div>
+                                    </div>
+                                </td>
+
+                                <td class="px-3 py-4 text-sm border-l border-slate-700/50 bg-slate-800/10 align-top">
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-center justify-center gap-3">
+                                            <div class="text-center min-w-[40px]">
+                                                <div class="text-[10px] text-indigo-400/60 uppercase font-bold">Tech</div>
+                                                <div class="text-base font-bold text-indigo-300">{{ item.tech_depth_score || item.techdepthscore || '-' }}</div>
+                                            </div>
+                                            <div class="h-6 w-px bg-slate-700/50"></div>
+                                            <div class="text-center min-w-[40px]">
+                                                <div class="text-[10px] text-amber-500/60 uppercase font-bold">Fit</div>
+                                                <div class="text-base font-bold text-amber-400">{{ item.career_progression_score || item.recruiterscore || '-' }}</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div v-if="item.stack_alignment" class="text-center">
+                                             <span class="text-[10px] px-1.5 py-0.5 bg-slate-700 rounded text-slate-300 border border-slate-600 truncate max-w-[100px] inline-block" :title="item.stack_alignment">
+                                                Stack: {{ item.stack_alignment }}
+                                             </span>
                                         </div>
                                     </div>
                                 </td>
 
-                                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                <td class="whitespace-nowrap px-3 py-4 text-sm align-top">
                                     <span 
                                         class="inline-flex items-center justify-center px-2.5 py-1 text-[11px] font-bold border rounded-md uppercase tracking-wider w-24"
                                         :class="getStatusStyles(item.status)"
                                     >
-                                        {{ item.status.replace('_', ' ') }}
+                                        {{ (item.status || 'FAIL').replace('_', ' ') }}
                                     </span>
                                 </td>
 
-                                <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm">
-                                    <button class="group/btn cursor-pointer flex items-center gap-1 ml-auto text-[#38bdf8] hover:text-white transition-all text-xs font-bold uppercase tracking-wider"
-                                    @click="() => goToAnalysis(item.id)">
+                                <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm align-top">
+                                    <button class="group/btn cursor-pointer flex items-center gap-1 ml-auto text-[#38bdf8] hover:text-white transition-all text-xs font-bold uppercase tracking-wider mt-1"
+                                    @click="() => goToAnalysis(item.id || item.analysis_id)">
                                         <span>View</span>
                                         <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />

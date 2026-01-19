@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { fetchAnalysisHistory } from '../api'
-import { useRouter } from "vue-router"
+import { useRouter, useRoute } from "vue-router"
 
 // const historyItems = ref([
 //   { id: '1024', role: 'Backend Engineer', company: 'Google', date: '2m ago', status: 'MAYBE',  },
@@ -12,6 +12,7 @@ import { useRouter } from "vue-router"
 
 const historyItems = ref([])
 const router = useRouter()
+const route = useRoute()
 
 onMounted(async () => {
   historyItems.value = await fetchAnalysisHistory()
@@ -43,12 +44,12 @@ function analysisReport(id){
       >
         <div class="flex justify-between items-start mb-1">
           <span class="text-xs font-mono text-slate-500">#{{ item.id }}</span>
-          <span class="text-[10px] font-bold uppercase tracking-wider" :class="item.color">{{ item.status }}</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider" :class="item.color">{{ item.status || 'FAIL'}}</span>
         </div>
         <h3 class="text-sm font-bold text-slate-200 group-hover:text-white transition-colors">{{ item.role }}</h3>
         <p class="text-xs text-slate-400">{{ item.company }}</p>
         
-        <!-- <div :class="{'ring-1 ring-indigo-500': item.id == router.params.id}"></div> -->
+        <div :class="{'ring-1 ring-indigo-500': item.id == route.params.id}"></div>
       </div>
     </div>
   </aside>
