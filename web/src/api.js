@@ -1,7 +1,7 @@
 
 export async function fetchHistory(){
     try{
-        const res = await fetch("http://localhost:8000/web/dashboard/history")
+        const res = await fetch("https://internops-2.onrender.com/web/dashboard/history")
         const data = await res.json()
         if(data.status == "success"){
             return data.data.history
@@ -14,7 +14,7 @@ export async function fetchHistory(){
 
 export async function fetchAnalysisHistory() {
     try{
-        const res = await fetch("http://localhost:8000/web/analysis/history")
+        const res = await fetch("https://internops-2.onrender.com/web/analysis/history")
         const data = await res.json()
         if(data.status == "success"){
             return data.data.history
@@ -27,7 +27,7 @@ export async function fetchAnalysisHistory() {
 
 export async function fetchAnalysisReport(id) {
     try{
-        const res = await fetch(`http://localhost:8000/web/analysis/report/${id}`)
+        const res = await fetch(`https://internops-2.onrender.com/web/analysis/report/${id}`)
         const data = await res.json()
         if (data.status == "success"){
             return data.report
