@@ -13,6 +13,8 @@ export async function fetchResult(analysisId){
 }
 
 
+
+
 export async function processResumeAnalysis(file, jobDescription, mode) {
     if (!file) throw new Error("No file provided");
 
