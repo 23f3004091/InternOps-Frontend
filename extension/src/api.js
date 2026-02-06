@@ -1,15 +1,17 @@
 import { wait } from './utils.js';
 import { JOB_DESCRIPTION } from './constants.js';
 
+const BASE_URL = "https://internops-2.onrender.com/"
 export async function fetchResult(analysisId){
     try{
-        const res = await fetch(`http://localhost:8000/analysis_result/${analysisId}`);
+        const res = await fetch(`${BASE_URL}/analysis_result/${analysisId}`);
         return await res.json();
     } catch(error){
         console.error(error);
         return null;
     }
 }
+
 
 export async function processResumeAnalysis(file, jobDescription, mode) {
     if (!file) throw new Error("No file provided");
@@ -23,7 +25,7 @@ export async function processResumeAnalysis(file, jobDescription, mode) {
 }
 
 async function fetchAnalyzeResume(formData, mode) {
-    const url = `http://localhost:8000/analyze/${mode}`;
+    const url = `${BASE_URL}/analyze/${mode}`;
     try {
         const res = await fetch(url, { method: "POST", body: formData });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -36,7 +38,7 @@ async function fetchAnalyzeResume(formData, mode) {
         if (!data.task_id) throw new Error("Missing task_id");
         
         const taskId = data.task_id;
-        const pollURL = `http://localhost:8000/result/${taskId}`;
+        const pollURL = `${BASE_URL}/result/${taskId}`;
         return await pollResult(pollURL);
     } catch (err) {
         throw err;
