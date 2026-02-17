@@ -1,7 +1,9 @@
 import { wait } from './utils.js';
 import { JOB_DESCRIPTION } from './constants.js';
 
-const BASE_URL = "https://internops-2.onrender.com/"
+const BASE_URL = "https://internops-2.onrender.com"
+// const BASE_URL = "http://127.0.0.1:8000"
+
 export async function fetchResult(analysisId){
     try{
         const res = await fetch(`${BASE_URL}/analysis_result/${analysisId}`);
@@ -30,15 +32,16 @@ async function fetchAnalyzeResume(formData, mode) {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const data = await res.json();
-        const status = data.status.toLowerCase();
-        if (status == "completed") {
-            return data;
-        }
-        if (!data.task_id) throw new Error("Missing task_id");
+        // const status = data.status.toLowerCase();
+        // if (status == "completed") {
+        //     return data;
+        // }
+        // if (!data.task_id) throw new Error("Missing task_id");
         
-        const taskId = data.task_id;
-        const pollURL = `${BASE_URL}/result/${taskId}`;
-        return await pollResult(pollURL);
+        // const taskId = data.task_id;
+        // const pollURL = `${BASE_URL}/result/${taskId}`;
+        // return await pollResult(pollURL);
+        return data
     } catch (err) {
         throw err;
     }
